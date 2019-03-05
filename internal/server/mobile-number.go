@@ -1,23 +1,23 @@
 package server
 
-import (
-	"net/http"
-)
-
+// information regarding valid and fixed mobile numbers
 type mobileNumber struct {
-	Number  string `json:"number"`
-	iocCode string
+	NumberProvided      string `json:"number_provided"`
+	FixedNumber         string `json:"number_fixed"`
+	countryAbbreviation string
+	Valid               bool   `json:"valid"`
+	Changes             string `json:"changes"`
 }
 
-func NewMobileNumber(countryIOCCode string, number string) (*mobileNumber, error, int) {
-	mobileNumb := &mobileNumber{
-		Number:  number,
-		iocCode: countryIOCCode,
+// Generates a mobile number data object after validating and attempting to fix
+// if the number could not be fixed, an error is returned
+func newMobileNumber(countryAbbreviation string, number string) (*mobileNumber, error) {
+	mobileNum := &mobileNumber{
+		NumberProvided:      number,
+		FixedNumber:         number,
+		countryAbbreviation: countryAbbreviation,
+		Valid:               true,
 	}
-
-	if err, code := validate(mobileNumb); err != nil {
-		return nil, err, code
-	}
-
-	return mobileNumb, nil, http.StatusOK
+	err := mobileNum.fix()
+	return mobileNum, err
 }
