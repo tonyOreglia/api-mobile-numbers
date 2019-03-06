@@ -1,19 +1,27 @@
-## API Mobile Numbers
-A RESTful HTTP server which saves mobile numbers for later retrieval. 
+# API Mobile Numbers
+A RESTful HTTP server which stores mobile numbers for later retrieval. 
 
 The server will validate and attempt to fix mobile numbers before storing. 
-
+Upon storing a batch of numbers, the service will return some basic information about the numbers stored.
 
 ## Usage
 
-#### Develop on Mac
+### Develop on Mac
 This will auto-restart the server when changes are saved
 ```
 $ brew install modd
 $ modd
 ```
 
-#### Run Server 
+To run tests, 
+```
+$ go test ./...
+```
+
+**Adding Support for Additional Countries** 
+Support for additional countries can be achieved by extending the `lookupRequirements` in `internal/server/fix.go`
+
+### Run Server 
 ```
 $ go run cmd/api-mobile-numbers/main.go 
 ```
@@ -137,10 +145,16 @@ The response will have the content disposition attachment and will have the form
 }
 ```
 
- 
+### Development Choices
+Golang was chosen as an efficient backend language. 
 
 
+ ### Corrections Made to Invalid Numbers
+ 1. If a number is too long, digits are trimmed from the end of the number
+ 2. If the number does not have the correct country dialing code, the dialing code is prepended 
+ 3. If the number 
 
+### Limitations 
 
 
 
