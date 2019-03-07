@@ -44,3 +44,32 @@ func TestGetFileResults(t *testing.T) {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 }
+
+func TestGetFileStats(t *testing.T) {
+	testUUID, err := uuid.NewV4()
+	require.NoError(t, err)
+	db, DBStore, mock := PrepareMockStore(t)
+	defer db.Close()
+
+	expectedResult := &Stats{
+		ValidNumbersCount:     1,
+		FixedNumbersCount:     3,
+		InvalidNumbersCount:   2,
+		TotalNumbersProcessed: 6,
+	}
+	mock.ExpectExec(`SELECT FROM numbers WHERE file_ref=\$1`).
+		WithArgs(testUUID).WillReturnResult(sqlmock.NewResult(0, 1))
+
+	mock.ExpectExec(`SELECT FROM fixed_numbers WHERE file_ref=\$1`).
+		WithArgs(testUUID).WillReturnResult(sqlmock.NewResult(0, 3))
+
+	mock.ExpectExec(`SELECT FROM rejected_numbers WHERE file_ref=\$1`).
+		WithArgs(testUUID).WillReturnResult(sqlmock.NewResult(0, 2))
+
+	actualResult, err := DBStore.GetFileStats(testUUID)
+	require.NoError(t, err)
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("there were unfulfilled expectations: %s", err)
+	}
+	require.Equal(t, actualResult, expectedResult)
+}
