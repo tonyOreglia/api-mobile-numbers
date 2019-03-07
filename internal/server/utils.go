@@ -22,7 +22,6 @@ func readCSVFromHttpRequest(req *http.Request) ([][]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Info(records)
 	return records, nil
 }
 

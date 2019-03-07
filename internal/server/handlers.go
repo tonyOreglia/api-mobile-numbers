@@ -70,7 +70,9 @@ func testNumberHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	if num.Valid {
-		json.NewEncoder(w).Encode(struct{ Valid bool }{true})
+		json.NewEncoder(w).Encode(struct {
+			Valid bool `json:"valid"`
+		}{true})
 		return
 	}
 	json.NewEncoder(w).Encode(num)
