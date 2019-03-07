@@ -9,7 +9,7 @@ Upon storing a batch of numbers, the service will return some basic information 
 ## Dependencies 
  - [PostgreSQL](https://www.postgresql.org/)
  - [Flyway](https://flywaydb.org/)
- - [Golang >1.11](https://github.com/golang/go/wiki/Modules))
+ - [Golang >1.11](https://github.com/golang/go/wiki/Modules)
  - [modd](https://github.com/cortesi/modd) 
 
 ### Develop on Mac
