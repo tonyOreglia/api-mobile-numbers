@@ -179,6 +179,8 @@ assoicated with a given mobile number capatured in a single object.
 Validation expects to recieve a mobile number object and asserts certain constraints upon that object. This was chosen as the validation may change
 and very likely will be extended. The constraints should be configurable and applied to the mobile number rather than a part of the mobile number object.
 
+Flyway was chosen as a convenient method of updating the DB tables as the service requirments evolve.
+
  ### Corrections Made to Invalid Numbers
   1. If a number is too long, digits are trimmed from the end of the number
   2. If the number does not have the correct country dialing code, the dialing code is prepended 

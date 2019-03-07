@@ -30,12 +30,14 @@ func TestGetFileResults(t *testing.T) {
 	mock.ExpectQuery(`SELECT number FROM numbers WHERE file_ref=\$1`).
 		WithArgs(testUUID).
 		WillReturnRows(sqlmock.NewRows([]string{"number", "file_ref", "country_ioc_code"}).AddRow("1234", testUUID, "rsa"))
+
 	mock.ExpectQuery(`SELECT number FROM rejected_numbers WHERE file_ref=\$1`).
 		WithArgs(testUUID).
-		WillReturnRows(sqlmock.NewRows([]string{"number", "file_ref"}).AddRow("1234", testUUID))
+		WillReturnRows(sqlmock.NewRows([]string{"number"}).AddRow("1234"))
+
 	mock.ExpectQuery(`SELECT original_number, changes, fixed_number FROM fixed_numbers WHERE file_ref=\$1`).
 		WithArgs(testUUID).
-		WillReturnRows(sqlmock.NewRows([]string{"original_number", "changes", "fixed_number", "file_ref"}).AddRow("1234", "change1,chang2,", "1234", testUUID))
+		WillReturnRows(sqlmock.NewRows([]string{"original_number", "changes", "fixed_number", "file_ref"}).AddRow("1234", "change1,chang2", "1234", testUUID))
 
 	DBStore.GetFileResults(testUUID)
 	if err := mock.ExpectationsWereMet(); err != nil {

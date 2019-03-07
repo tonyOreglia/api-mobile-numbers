@@ -2,6 +2,7 @@ package store
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/gofrs/uuid"
 	"github.com/lib/pq"
@@ -35,21 +36,24 @@ func (s *Store) GetFileResults(ref uuid.UUID) (*FileResults, error) {
 		err = rows.Scan(&number)
 		result.ValidNumbers = append(result.ValidNumbers, number)
 	}
-
+	fmt.Println("HERE")
 	query = `SELECT number FROM rejected_numbers WHERE file_ref=$1`
 	rows, err = s.DB.Query(query, ref)
+	fmt.Printf("rows: %+v", rows)
 	if err != nil {
+		fmt.Println("query: ", err)
 		return nil, err
 	}
 	for rows.Next() {
 		var number string
 		err = rows.Scan(&number)
 		if err != nil {
+			fmt.Println("what is this: ", err)
 			return nil, err
 		}
 		result.RejectedNumbers = append(result.RejectedNumbers, number)
 	}
-
+	fmt.Println("HERE2")
 	query = `SELECT original_number, changes, fixed_number FROM fixed_numbers WHERE file_ref=$1`
 	err = s.DB.Select(&result.FixedNumbers, query, ref)
 	if err != nil {
