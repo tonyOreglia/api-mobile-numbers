@@ -1,21 +1,25 @@
-CREATE TABLE IF NOT EXISTS numbers (
-  number        	text NOT NULL,
-  file_ref      	uuid NOT NULL,
-  country_ioc_code 	text NOT NULL,
-  PRIMARY KEY (number, file_ref)
+CREATE TABLE IF NOT EXISTS numbers(
+  number        	  TEXT NOT NULL,
+  file_ref      	  UUID NOT NULL,
+  country_ioc_code 	TEXT NOT NULL,
+  PRIMARY KEY       (number, file_ref)
 );
 
-
 CREATE TABLE IF NOT EXISTS fixed_numbers (
-  original_number         text NOT NULL,
-  changes                 text NOT NULL,
-  fixed_number            text NOT NULL,
-  file_ref      		      uuid NOT NULL,
-  PRIMARY KEY   		      original_number, file_ref)
+  original_number   TEXT NOT NULL,
+  changes           TEXT NOT NULL,
+  fixed_number      TEXT NOT NULL,
+  file_ref          UUID NOT NULL,
+  PRIMARY KEY       (original_number, file_ref)
 );
 
 CREATE TABLE IF NOT EXISTS rejected_numbers (
-  number        text NOT NULL,
-  file_ref      uuid NOT NULL,
+  number        TEXT NOT NULL,
+  file_ref      UUID NOT NULL,
   PRIMARY KEY   (number, file_ref)
 );
+
+
+GRANT ALL PRIVILEGES ON TABLE numbers TO olx;
+GRANT ALL PRIVILEGES ON TABLE fixed_numbers TO olx;
+GRANT ALL PRIVILEGES ON TABLE rejected_numbers TO olx;

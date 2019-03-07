@@ -32,6 +32,7 @@ func (s *Server) getFileDetailsHandler(w http.ResponseWriter, r *http.Request) {
 		handleError(w, err, http.StatusInternalServerError)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	json.NewEncoder(w).Encode(fileData{
 		Ref:   refUUID,
 		Stats: *stats,

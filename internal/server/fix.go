@@ -68,7 +68,6 @@ func (n *mobileNumber) dialingCodeIsCorrect(code string) bool {
 func (n *mobileNumber) prependDialingCodeFix(code string) {
 	n.FixedNumber = fmt.Sprintf("%s%s", code, n.FixedNumber)
 	n.Changes = append(n.Changes, fmt.Sprintf("prepended number with %s", code))
-	// n.Changes = fmt.Sprintf("%s%s,", n.Changes, fmt.Sprintf("prepended number with %s", code))
 }
 
 func (n *mobileNumber) onlyDigitsInNumber() bool {
@@ -86,7 +85,6 @@ func (n *mobileNumber) removeNonDigitsFix() {
 	}
 	n.FixedNumber = reg.ReplaceAllString(n.FixedNumber, "")
 	n.Changes = append(n.Changes, "removed non digits from number")
-	// n.Changes = fmt.Sprintf("%s%s,", n.Changes, "removed non digits from number")
 }
 
 func (n *mobileNumber) numberIsTooLong(requiredLength int) bool {
@@ -98,8 +96,6 @@ func (n *mobileNumber) shortenNumberFix(requiredLength int) {
 	n.FixedNumber = n.FixedNumber[0:requiredLength]
 	changeString := fmt.Sprintf("shortened number by removing %s", digitsToRemove)
 	n.Changes = append(n.Changes, changeString)
-	// n.Changes = fmt.Sprintf("%s%s,", n.Changes, changeString)
-	log.Info(changeString)
 }
 
 func (n *mobileNumber) numberIsTooShort(requiredLength int) bool {

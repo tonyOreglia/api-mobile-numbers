@@ -1,7 +1,0 @@
-CREATE USER olx WITH PASSWORD 'olx';
-CREATE DATABASE mobile_numbers;
-GRANT ALL PRIVILEGES ON DATABASE mobile_numbers TO olx;
-GRANT ALL PRIVILEGES ON TABLE numbers TO olx;
-GRANT ALL PRIVILEGES ON TABLE fixed_numbers TO olx;
-GRANT ALL PRIVILEGES ON TABLE rejected_numbers TO olx;
-

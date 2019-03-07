@@ -1,10 +1,7 @@
-// Copyright (c) 2016 SafetyCulture Pty Ltd. All Rights Reserved.
-
 package store
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/gofrs/uuid"
 	"github.com/lib/pq"
@@ -31,10 +28,8 @@ func (s *Store) GetFileResults(ref uuid.UUID) (*FileResults, error) {
 	result := &FileResults{}
 	rows, err := s.DB.Query(query, ref)
 	if err != nil {
-		log.Info(err)
 		return nil, err
 	}
-	// iterate over each row
 	for rows.Next() {
 		var number string
 		err = rows.Scan(&number)
@@ -44,19 +39,22 @@ func (s *Store) GetFileResults(ref uuid.UUID) (*FileResults, error) {
 	query = `SELECT number FROM rejected_numbers WHERE file_ref=$1`
 	rows, err = s.DB.Query(query, ref)
 	if err != nil {
-		log.Info(err)
 		return nil, err
 	}
-	// iterate over each row
 	for rows.Next() {
 		var number string
 		err = rows.Scan(&number)
+		if err != nil {
+			return nil, err
+		}
 		result.RejectedNumbers = append(result.RejectedNumbers, number)
 	}
 
 	query = `SELECT original_number, changes, fixed_number FROM fixed_numbers WHERE file_ref=$1`
 	err = s.DB.Select(&result.FixedNumbers, query, ref)
-	fmt.Printf("fixed numbs: %+v", result.FixedNumbers)
+	if err != nil {
+		return nil, err
+	}
 	return result, nil
 }
 
