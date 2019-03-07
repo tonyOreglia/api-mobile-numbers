@@ -3,6 +3,7 @@
 package store
 
 import (
+	"database/sql"
 	"fmt"
 
 	"github.com/gofrs/uuid"
@@ -92,114 +93,106 @@ func (s *Store) GetFileStats(ref uuid.UUID) (*Stats, error) {
 
 // SaveNumbers stores valid numbers
 func (s *Store) SaveNumbers(numbers []Number) error {
+	if len(numbers) == 0 {
+		return nil
+	}
 	log.Infof("Saving %d numbers", len(numbers))
-	log.Debugf("Numbers: %+v", numbers)
 	txn, err := s.DB.Begin()
 	if err != nil {
 		return err
 	}
-
 	stmt, err := txn.Prepare(pq.CopyIn("numbers", "number", "country_ioc_code", "file_ref"))
 	if err != nil {
-		log.Error(errors.Wrap(err, "[SaveNumbers] unable to prepare pq.CopyIn"))
+		return errors.Wrap(err, "[SaveNumbers] unable to prepare pq.CopyIn")
 	}
 
 	for _, num := range numbers {
 		_, err = stmt.Exec(num.Number, num.CountryIOCCode, num.FileRef)
 		if err != nil {
-			log.Error(errors.Wrapf(err, "[SaveNumbers] unable to save number %+v", num))
+			endTrasaction(stmt, txn)
+			return errors.Wrapf(err, "[SaveNumbers] unable to save number %+v", num)
 		}
 	}
-
-	_, err = stmt.Exec()
-	if err != nil {
-		log.Error(errors.Wrap(err, "[SaveNumbers] unable to execute bulk insert to numbers"))
-	}
-
-	err = stmt.Close()
-	if err != nil {
-		log.Error(errors.Wrap(err, "[SaveNumbers] unable to close DB connection"))
-	}
-
-	err = txn.Commit()
-	if err != nil {
-		log.Error(errors.Wrap(err, "[SaveNumbers] unable to commit bulk transaction"))
-	}
-	return nil
+	return executeTransaction(stmt, txn, "SaveNumbers")
 }
 
 // SaveFixedNumbers stores fixed mobile numbers, the originally provided number, and a list of changes
 func (s *Store) SaveFixedNumbers(fixedNums []FixedNumber) error {
+	if len(fixedNums) == 0 {
+		return nil
+	}
 	log.Infof("Saving %d fixed numbers", len(fixedNums))
-	log.Debugf("Fixed Numbers: %+v", fixedNums)
 	txn, err := s.DB.Begin()
 	if err != nil {
 		return err
 	}
-
 	stmt, err := txn.Prepare(pq.CopyIn("fixed_numbers", "original_number", "changes", "fixed_number", "file_ref"))
 	if err != nil {
-		log.Error(errors.Wrap(err, "[SaveFixedNumbers] unable to prepare pq.CopyIn"))
+		endTrasaction(stmt, txn)
+		return errors.Wrap(err, "[SaveFixedNumbers] unable to prepare pq.CopyIn")
 	}
-
 	for _, num := range fixedNums {
 		_, err = stmt.Exec(num.OriginalNumber, num.Changes, num.FixedNumber, num.FileRef)
 		if err != nil {
-			log.Error(errors.Wrapf(err, "[SaveFixedNumbers] unable to save number %+v", num))
+			endTrasaction(stmt, txn)
+			return errors.Wrapf(err, "[SaveFixedNumbers] unable to save number %+v", num)
 		}
 	}
-
-	_, err = stmt.Exec()
-	if err != nil {
-		log.Error(errors.Wrap(err, "[SaveFixedNumbers] unable to execute bulk insert to numbers"))
-	}
-
-	err = stmt.Close()
-	if err != nil {
-		log.Error(errors.Wrap(err, "[SaveFixedNumbers] unable to close DB connection"))
-	}
-
-	err = txn.Commit()
-	if err != nil {
-		log.Error(errors.Wrap(err, "[SaveFixedNumbers] unable to commit bulk transaction"))
-	}
-	return nil
+	return executeTransaction(stmt, txn, "SaveFixedNumbers")
 }
 
 // SaveRejectedNumbers saves invalid numbers that could not be fixed
 func (s *Store) SaveRejectedNumbers(rejectedNums []RejectedNumber) error {
+	if len(rejectedNums) == 0 {
+		return nil
+	}
 	log.Infof("Saving %d rejected numbers", len(rejectedNums))
-	log.Infof("Numbers: %+v", rejectedNums)
 	txn, err := s.DB.Begin()
 	if err != nil {
 		return err
 	}
-
 	stmt, err := txn.Prepare(pq.CopyIn("rejected_numbers", "number", "file_ref"))
 	if err != nil {
-		log.Error(errors.Wrap(err, "[SaveRejectedNumbers] unable to prepare pq.CopyIn"))
+		endTrasaction(stmt, txn)
+		return errors.Wrap(err, "[SaveRejectedNumbers] unable to prepare pq.CopyIn")
 	}
-
 	for _, num := range rejectedNums {
 		_, err = stmt.Exec(num.Number, num.FileRef)
 		if err != nil {
-			log.Error(errors.Wrapf(err, "[SaveRejectedNumbers] unable to save number %+v", num))
+			endTrasaction(stmt, txn)
+			return errors.Wrapf(err, "[SaveRejectedNumbers] unable to save number %+v", num)
 		}
 	}
+	return executeTransaction(stmt, txn, "SaveRejectedNumbers")
+}
 
-	_, err = stmt.Exec()
+func executeTransaction(stmt *sql.Stmt, txn *sql.Tx, op string) error {
+	_, err := stmt.Exec()
 	if err != nil {
-		log.Error(errors.Wrap(err, "[SaveRejectedNumbers] unable to execute bulk insert to numbers"))
+		endTrasaction(stmt, txn)
+		return errors.Wrapf(err, "[%s] unable to execute bulk insert to numbers", op)
 	}
 
 	err = stmt.Close()
 	if err != nil {
-		log.Error(errors.Wrap(err, "[SaveRejectedNumbers] unable to close DB connection"))
+		if e := stmt.Close(); e != nil {
+			log.Error(e)
+		}
+		return errors.Wrapf(err, "[%s] unable to close DB connection", op)
 	}
 
 	err = txn.Commit()
 	if err != nil {
-		log.Error(errors.Wrap(err, "[SaveRejectedNumbers] unable to commit bulk transaction"))
+		return errors.Wrapf(err, "[%s] unable to commit bulk transaction", op)
 	}
 	return nil
+}
+
+func endTrasaction(stmt *sql.Stmt, txn *sql.Tx) {
+	if e := stmt.Close(); e != nil {
+		log.Error(e)
+	}
+	if e := txn.Commit(); e != nil {
+		log.Error(e)
+	}
 }

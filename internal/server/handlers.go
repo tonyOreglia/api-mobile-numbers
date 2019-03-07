@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/mux"
@@ -118,7 +119,7 @@ func (s *Server) storeNumbersHandler(w http.ResponseWriter, r *http.Request) {
 		fixedNumber := store.FixedNumber{
 			OriginalNumber: num.NumberProvided,
 			FixedNumber:    num.FixedNumber,
-			Changes:        num.Changes,
+			Changes:        strings.Join(num.Changes, (", ")),
 			FileRef:        hash,
 		}
 		fixedNumbers = append(fixedNumbers, fixedNumber)
@@ -126,15 +127,18 @@ func (s *Server) storeNumbersHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = s.db.SaveNumbers(numbers)
 	if err != nil {
-		log.Error(err)
+		handleError(w, err, http.StatusInternalServerError)
+		return
 	}
 	err = s.db.SaveFixedNumbers(fixedNumbers)
 	if err != nil {
-		log.Error(err)
+		handleError(w, err, http.StatusInternalServerError)
+		return
 	}
 	err = s.db.SaveRejectedNumbers(rejectedNumbers)
 	if err != nil {
-		log.Error(err)
+		handleError(w, err, http.StatusInternalServerError)
+		return
 	}
 	resp := fileData{
 		Ref: hash,

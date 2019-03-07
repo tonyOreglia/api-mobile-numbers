@@ -148,13 +148,16 @@ The response will have the content disposition attachment and will have the form
 ### Development Choices
 Golang was chosen as an efficient backend language. 
 
+Postgres was chosen as an effective way to store and retrieve data reliably.
 
  ### Corrections Made to Invalid Numbers
  1. If a number is too long, digits are trimmed from the end of the number
  2. If the number does not have the correct country dialing code, the dialing code is prepended 
- 3. If the number 
+ 3. If there are any non-digits present, remove them
 
 ### Limitations 
+ 1. Largest file size possible
+ 2. 
 
 
 

@@ -52,7 +52,7 @@ func (n *mobileNumber) fix() error {
 	// This number is rejected if to short
 	if n.numberIsTooShort(req.length) {
 		n.Valid = false
-		n.Changes = ""
+		n.Changes = []string{}
 		n.FixedNumber = ""
 		errString := fmt.Sprintf("invalid length %d, the length must be exactly %d", len(n.NumberProvided), req.length)
 		log.Error(&jsonError{Msg: errString})
@@ -67,7 +67,8 @@ func (n *mobileNumber) dialingCodeIsCorrect(code string) bool {
 
 func (n *mobileNumber) prependDialingCodeFix(code string) {
 	n.FixedNumber = fmt.Sprintf("%s%s", code, n.FixedNumber)
-	n.Changes = fmt.Sprintf("%s%s,", n.Changes, fmt.Sprintf("prepended number with %s", code))
+	n.Changes = append(n.Changes, fmt.Sprintf("prepended number with %s", code))
+	// n.Changes = fmt.Sprintf("%s%s,", n.Changes, fmt.Sprintf("prepended number with %s", code))
 }
 
 func (n *mobileNumber) onlyDigitsInNumber() bool {
@@ -84,7 +85,8 @@ func (n *mobileNumber) removeNonDigitsFix() {
 		log.Error("unable to gererate regex")
 	}
 	n.FixedNumber = reg.ReplaceAllString(n.FixedNumber, "")
-	n.Changes = fmt.Sprintf("%s%s,", n.Changes, "removed non digits from number")
+	n.Changes = append(n.Changes, "removed non digits from number")
+	// n.Changes = fmt.Sprintf("%s%s,", n.Changes, "removed non digits from number")
 }
 
 func (n *mobileNumber) numberIsTooLong(requiredLength int) bool {
@@ -95,7 +97,8 @@ func (n *mobileNumber) shortenNumberFix(requiredLength int) {
 	digitsToRemove := n.FixedNumber[requiredLength:len(n.FixedNumber)]
 	n.FixedNumber = n.FixedNumber[0:requiredLength]
 	changeString := fmt.Sprintf("shortened number by removing %s", digitsToRemove)
-	n.Changes = fmt.Sprintf("%s%s,", n.Changes, changeString)
+	n.Changes = append(n.Changes, changeString)
+	// n.Changes = fmt.Sprintf("%s%s,", n.Changes, changeString)
 	log.Info(changeString)
 }
 

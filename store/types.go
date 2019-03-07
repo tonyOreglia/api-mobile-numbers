@@ -1,6 +1,8 @@
 package store
 
-import "github.com/gofrs/uuid"
+import (
+	"github.com/gofrs/uuid"
+)
 
 // Number is used in query to store valid numer in DB
 type Number struct {

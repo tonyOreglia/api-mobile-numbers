@@ -5,8 +5,8 @@ type mobileNumber struct {
 	NumberProvided      string `json:"number_provided"`
 	FixedNumber         string `json:"number_fixed"`
 	countryAbbreviation string
-	Valid               bool   `json:"valid"`
-	Changes             string `json:"changes"`
+	Valid               bool     `json:"valid"`
+	Changes             []string `json:"changes"`
 }
 
 // Generates a mobile number data object after validating and attempting to fix
