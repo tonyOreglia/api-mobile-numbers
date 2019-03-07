@@ -15,11 +15,12 @@ Upon storing a batch of numbers, the service will return some basic information 
 ### Develop on Mac
 
 #### Install Dependencies
-```
-$ brew install modd
-$ brew install flyway
-```
-Install [PostgreSQL](https://postgresapp.com/) and [Go](https://golang.org/doc/install)
+  1. Install modd 
+  `$ brew install modd`
+  2. Install flyway
+  `$ brew install flyway`
+  3. Install [PostgreSQL](https://postgresapp.com/) 
+  4. Install [Go](https://golang.org/doc/install)
 
 #### Initialize DB and Tables
 ```
